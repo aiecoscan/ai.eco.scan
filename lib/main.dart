@@ -81,18 +81,18 @@ class MyApp extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  box(150, 180, Color(int.parse(bg_color2))),
+                  box(150, 200, Color(int.parse(bg_color2)), "Clean your\nStreets", "assets/icons/recycle.png"),
                   SizedBox(width: 30),
-                  box(150, 180, Color(int.parse(bg_color2))),
+                  box(150, 200, Color(int.parse(bg_color2)), "Earn Points\n&Money", "assets/icons/reward-points.png"),
                 ],
               ),
               SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  box(150, 180, Color(int.parse(bg_color2))),
+                  box(150, 200, Color(int.parse(bg_color2)), "Learn About\nRecycling", "assets/icons/book.png"),
                   SizedBox(width: 30),
-                  box(150, 180, Color(int.parse(bg_color2))),
+                  box(150, 200, Color(int.parse(bg_color2)), "Help Others\nLive Cleanly", "assets/icons/help.png"),
                 ],
               ),
 
@@ -121,13 +121,30 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Widget box(double w, double h, Color c) {
+Widget box(double w, double h, Color c, String t, String url) {
   return Container(
+    padding: EdgeInsets.all(10),
     width: w,
     height: h,
     decoration: BoxDecoration(
       color: c,
       borderRadius: BorderRadius.circular(10),
+    ),
+    child: Column(  
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(width: w , height: (h / 2),
+        child:                         
+        Image.asset(
+          url,
+          width: 30,
+          height: 30,
+            ),),
+        SizedBox(height: 10,),
+        Container(width: w, height: (h / 3), alignment: Alignment.center,
+        child: Text(t, textAlign: TextAlign.center ,style: TextStyle(fontSize: 18, color: Colors.white, fontStyle: FontStyle.italic, fontWeight: FontWeight.w500),),),
+      ],
     ),
   );
 }
