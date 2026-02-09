@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
     const String font_color = "0xff9AE600";
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Economica'),
       home: Scaffold(
         body: Container(
@@ -22,6 +23,8 @@ class MyApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+
+
               // 1st : the main text at the main screen
               Container(
                 width: 500,
