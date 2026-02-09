@@ -13,9 +13,7 @@ class MyApp extends StatelessWidget {
     const String font_color = "0xff9AE600";
 
     return MaterialApp(
-        theme: ThemeData(
-    fontFamily: 'Economica',
-  ),
+      theme: ThemeData(fontFamily: 'Economica'),
       home: Scaffold(
         body: Container(
           color: Color(int.parse(bg_color)),
@@ -24,24 +22,58 @@ class MyApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              
               // 1st : the main text at the main screen
-              Container(width: 310, height: 250, 
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(width: 300, height: 100, alignment: Alignment.center, 
-                  child: Text("EcoScan", style: TextStyle(color: Color(int.parse(font_color)), fontSize: 70, fontFamily: "Economica", fontWeight: FontWeight.bold),),),
-                  SizedBox(height: 0,),
-                  Container(width: 300, height: 60, alignment: Alignment.center,
-                  child: Text("Save Our Plant", style: TextStyle(color: Colors.white, fontSize: 50, fontStyle: FontStyle.italic),))
-                ],
-              ),
+              Container(
+                width: 500,
+                height: 250,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 200,
+                          height: 100,
+                          alignment: Alignment.center,
+                          child: Text(
+                            "EcoScan",
+                            style: TextStyle(
+                              color: Color(int.parse(font_color)),
+                              fontSize: 70,
+                              fontFamily: "Economica",
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        Image.asset(
+                          'assets/icons/leaf.png',
+                          width: 80,
+                          height: 80,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 0),
+                    Container(
+                      width: 300,
+                      height: 60,
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Save Our Plant",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
               SizedBox(height: 10),
-              
+
               // 2nd : The four squares at the main screen
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -60,13 +92,23 @@ class MyApp extends StatelessWidget {
                   box(150, 180, Color(int.parse(bg_color2))),
                 ],
               ),
-              
+
               SizedBox(height: 50),
-              
+
               // 3rd : Swipe to learn more ->
-              Container(width: 310, height: 50, alignment: Alignment.center,
-              child: Text("Swipe to learn more ->", style: TextStyle(color: Color(int.parse(font_color)), fontSize: 25, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),),
-              
+              Container(
+                width: 310,
+                height: 50,
+                alignment: Alignment.center,
+                child: Text(
+                  "Swipe to learn more ->",
+                  style: TextStyle(
+                    color: Color(int.parse(font_color)),
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ),
             ],
           ),
