@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(LoginMain ());
 }
 
-class MyApp extends StatelessWidget {
+class LoginMain  extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
