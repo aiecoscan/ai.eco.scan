@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:eco_scan/constants/colors.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -7,17 +9,14 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Colors
-    const String bg_color = "0xff002c20";
-    const String bg_color2 = "0xff003D2E";
-    const String font_color = "0xff9AE600";
+
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Economica'),
       home: Scaffold(
         body: Container(
-          color: Color(int.parse(bg_color)),
+          color:AppColors.bg_color,
           width: double.infinity,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -43,7 +42,7 @@ class MyApp extends StatelessWidget {
                           child: Text(
                             "EcoScan",
                             style: TextStyle(
-                              color: Color(int.parse(font_color)),
+                              color: AppColors.font_color,
                               fontSize: 70,
                               fontFamily: "Economica",
                               fontWeight: FontWeight.w900,
@@ -81,18 +80,18 @@ class MyApp extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  box(150, 200, Color(int.parse(bg_color2)), "Clean your\nStreets", "assets/icons/recycle.png"),
+                  box(150, 200, AppColors.bg_color2, "Clean your\nStreets", "assets/icons/recycle.png"),
                   SizedBox(width: 30),
-                  box(150, 200, Color(int.parse(bg_color2)), "Earn Points\n&Money", "assets/icons/reward-points.png"),
+                  box(150, 200, AppColors.bg_color2, "Earn Points\n&Money", "assets/icons/reward-points.png"),
                 ],
               ),
               SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  box(150, 200, Color(int.parse(bg_color2)), "Learn About\nRecycling", "assets/icons/book.png"),
+                  box(150, 200, AppColors.bg_color2, "Learn About\nRecycling", "assets/icons/book.png"),
                   SizedBox(width: 30),
-                  box(150, 200, Color(int.parse(bg_color2)), "Help Others\nLive Cleanly", "assets/icons/help.png"),
+                  box(150, 200, AppColors.bg_color2, "Help Others\nLive Cleanly", "assets/icons/help.png"),
                 ],
               ),
 
@@ -106,7 +105,7 @@ class MyApp extends StatelessWidget {
                 child: Text(
                   "Swipe to learn more ->",
                   style: TextStyle(
-                    color: Color(int.parse(font_color)),
+                    color: AppColors.font_color,
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     fontStyle: FontStyle.italic,
