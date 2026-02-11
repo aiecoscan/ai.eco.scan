@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
 
 void main() {
-  runApp(LoginMain ());
+  runApp(LoginMain());
 }
 
-class LoginMain  extends StatelessWidget {
+class LoginMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -59,16 +59,14 @@ class LoginMain  extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            width: 300,
-                            height: 90,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: AppColors.font_color,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              ),
+                          MaterialButton(
+                            onPressed: () {},
+                            minWidth: 300,
+                            height: 100,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
+                            color: AppColors.font_color,
                             child: Text(
                               "Log In",
                               style: TextStyle(
@@ -79,16 +77,14 @@ class LoginMain  extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 20),
-                          Container(
-                            width: 300,
-                            height: 90,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: AppColors.font_color,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              ),
+                          MaterialButton(
+                            onPressed: () {},
+                            minWidth: 300,
+                            height: 100,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
+                            color: AppColors.font_color,
                             child: Text(
                               "Sign Up",
                               style: TextStyle(
@@ -104,72 +100,109 @@ class LoginMain  extends StatelessWidget {
 
                     // Or Continue Using
                     Container(
-                    margin: EdgeInsets.symmetric(horizontal: 40),
-                    child: 
-                    Column(
-                      children: [Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      margin: EdgeInsets.symmetric(horizontal: 40),
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: Divider(
-                              color: const Color.fromARGB(105, 0, 212, 145),
-                              thickness: 0.5,
-                            ),
-                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  color: const Color.fromARGB(105, 0, 212, 145),
+                                  thickness: 0.5,
+                                ),
+                              ),
 
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Text(
+                                  "or",
+                                  style: TextStyle(
+                                    color: AppColors.font_color2,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 25,
+                                  ),
+                                ),
+                              ),
+
+                              Expanded(
+                                child: Divider(
+                                  color: const Color.fromARGB(105, 0, 212, 145),
+                                  thickness: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            alignment: Alignment.center,
                             child: Text(
-                              "or",
+                              "Continue Using",
                               style: TextStyle(
-                                color: AppColors.font_color2,
-                                fontWeight: FontWeight.w700,
                                 fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: AppColors.font_color,
                               ),
                             ),
                           ),
-
-                          Expanded(
-                            child: Divider(
-                              color: const Color.fromARGB(105, 0, 212, 145),
-                              thickness: 0.5,
-                            ),
-                          ),
-
                         ],
                       ),
-                      Container(alignment: Alignment.center,
-                      child: Text("Continue Using", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: AppColors.font_color),))
-                      ]
                     ),
-                    ),
-                  
+
                     // Sign in Options
-                    Container(height: 100,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(width: 55, height: 55,
-                        child: Image.asset("assets/icons/twitter.png"),
-                        ),
-                        SizedBox(width: 20,),
-                        Container(width: 55, height: 55,
-                        child: Image.asset("assets/icons/google.png"),
-                        ),
-                        SizedBox(width: 20,),
-                        Container(width: 55, height: 55,
-                        child: Image.asset("assets/icons/facebook.png"),
-                        ),
-                        SizedBox(width: 20,),
-                        Container(width: 55, height: 55,
-                        child: Image.asset("assets/icons/apple.png"),
-                        ),
-                      ],
+                    Container(
+                      height: 100,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          MaterialButton(
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            onPressed: () {},
+                            child: Image.asset(
+                              "assets/icons/twitter.png",
+                              width: 50,
+                            ),
+                          ),
+                          // SizedBox(width: 20),
+                          MaterialButton(
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            onPressed: () {},
+                            child: Image.asset(
+                              "assets/icons/google.png",
+                              width: 50,
+                            ),
+                          ),
+                          // SizedBox(width: 20),
+                          MaterialButton(
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            onPressed: () {},
+                            child: Image.asset(
+                              "assets/icons/facebook.png",
+                              width: 50,
+                            ),
+                          ),
+                          // SizedBox(width: 20),
+                          MaterialButton(
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            onPressed: () {},
+                            child: Image.asset(
+                              "assets/icons/apple.png",
+                              width: 50,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    )
-
-
                   ],
                 ),
               ),
