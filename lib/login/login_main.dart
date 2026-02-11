@@ -63,6 +63,7 @@ class LoginMain extends StatelessWidget {
                             onPressed: () {},
                             minWidth: 300,
                             height: 100,
+                            splashColor: Colors.lightGreenAccent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -81,6 +82,7 @@ class LoginMain extends StatelessWidget {
                             onPressed: () {},
                             minWidth: 300,
                             height: 100,
+                            splashColor: Colors.lightGreenAccent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
