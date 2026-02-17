@@ -161,7 +161,7 @@ class _LoginState extends State<Login> {
                 height: 70,
                 splashColor: Colors.lightGreenAccent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(15),
                 ),
                 color: AppColors.font_color,
                 child: Text(
