@@ -176,7 +176,7 @@ class _LoginState extends State<Login> {
 
               SizedBox(height: 30,),
 
-              // Sign-in Optins
+              // Or
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 40),
                 child: Column(
