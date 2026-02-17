@@ -43,7 +43,7 @@ class _SignUpState extends State<SignUp> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Create Your Account", style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white),),
-                  Text("  Please fill your details below", style: TextStyle(fontSize: 20, color: AppColors.font_color2, fontStyle: FontStyle.italic),),
+                  Text("  Please fill your details below", style: TextStyle(fontSize: 18, color: AppColors.font_color2, fontStyle: FontStyle.italic),),
                 ],
               ) ,
               ),
@@ -245,7 +245,7 @@ class _SignUpState extends State<SignUp> {
               MaterialButton(
                 onPressed: () {},
                 minWidth: 300,
-                height: 80,
+                height: 70,
                 splashColor: Colors.lightGreenAccent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -254,7 +254,7 @@ class _SignUpState extends State<SignUp> {
                 child: Text(
                   "Sign-up",
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: AppColors.bg_color,
                   ),

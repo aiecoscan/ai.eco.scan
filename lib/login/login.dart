@@ -158,7 +158,7 @@ class _LoginState extends State<Login> {
               MaterialButton(
                 onPressed: () {},
                 minWidth: 300,
-                height: 80,
+                height: 70,
                 splashColor: Colors.lightGreenAccent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -167,7 +167,7 @@ class _LoginState extends State<Login> {
                 child: Text(
                   "Log In",
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: AppColors.bg_color,
                   ),
