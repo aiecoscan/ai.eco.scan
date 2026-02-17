@@ -26,10 +26,12 @@ class _LoginState extends State<Login> {
         resizeToAvoidBottomInset: false,
         body: Container(
           color: AppColors.bg_color,
+          padding: EdgeInsets.all(20),
           width: double.infinity,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              
               SizedBox(height: 30,),
 
               // Logo
@@ -271,7 +273,8 @@ class _LoginState extends State<Login> {
               ),
 
               // Do not have an account ?
-              Container(height: 50, alignment: Alignment.bottomCenter,
+              Container(
+                height: 50, alignment: Alignment.bottomCenter,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
