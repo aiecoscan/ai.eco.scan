@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
-import 'package:flutter/services.dart';
 
 class ForgetPss extends StatefulWidget {
   const ForgetPss({super.key});
@@ -9,21 +8,10 @@ class ForgetPss extends StatefulWidget {
   State<ForgetPss> createState() => _ForgetPssState();
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  runApp(ForgetPss());
-}
-
 class _ForgetPssState extends State<ForgetPss> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Economica'),
-      home: Scaffold(
+    return Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(
           color: AppColors.bg_color,
@@ -120,7 +108,6 @@ class _ForgetPssState extends State<ForgetPss> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

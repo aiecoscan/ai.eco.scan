@@ -1,14 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
-import 'package:flutter/services.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  runApp(Login());
-}
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -19,10 +11,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Economica'),
-      home: Scaffold(
+    return Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(
           color: AppColors.bg_color,
@@ -289,7 +278,6 @@ class _LoginState extends State<Login> {
             ],
           ),
         ),
-      ),
     );
-  }
+}
 }

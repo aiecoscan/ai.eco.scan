@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
-
+import 'package:eco_scan/login/login.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,21 +9,17 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Economica'),
       home: Scaffold(
         body: Container(
-          color:AppColors.bg_color,
+          color: AppColors.bg_color,
           width: double.infinity,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-
-
               // 1st : the main text at the main screen
               Container(
                 width: 500,
@@ -80,35 +76,59 @@ class MyApp extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  box(150, 200, AppColors.bg_color2, "Clean your\nStreets", "assets/icons/recycle.png"),
+                  box(
+                    150,
+                    200,
+                    AppColors.bg_color2,
+                    "Clean your\nStreets",
+                    "assets/icons/recycle.png",
+                  ),
                   SizedBox(width: 30),
-                  box(150, 200, AppColors.bg_color2, "Earn Points\n&Money", "assets/icons/reward-points.png"),
+                  box(
+                    150,
+                    200,
+                    AppColors.bg_color2,
+                    "Earn Points\n&Money",
+                    "assets/icons/reward-points.png",
+                  ),
                 ],
               ),
               SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  box(150, 200, AppColors.bg_color2, "Learn About\nRecycling", "assets/icons/book.png"),
+                  box(
+                    150,
+                    200,
+                    AppColors.bg_color2,
+                    "Learn About\nRecycling",
+                    "assets/icons/book.png",
+                  ),
                   SizedBox(width: 30),
-                  box(150, 200, AppColors.bg_color2, "Help Others\nLive Cleanly", "assets/icons/help.png"),
+                  box(
+                    150,
+                    200,
+                    AppColors.bg_color2,
+                    "Help Others\nLive Cleanly",
+                    "assets/icons/help.png",
+                  ),
                 ],
               ),
 
               SizedBox(height: 50),
 
               // 3rd : Swipe to learn more ->
-              Container(
-                width: 310,
-                height: 50,
-                alignment: Alignment.center,
+              TextButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+                },
                 child: Text(
-                  "Swipe to learn more ->",
+                  "Press to continue",
                   style: TextStyle(
-                    color: AppColors.font_color,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.white,
                     fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -129,20 +149,31 @@ Widget box(double w, double h, Color c, String t, String url) {
       color: c,
       borderRadius: BorderRadius.circular(10),
     ),
-    child: Column(  
+    child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(width: w , height: (h / 2),
-        child:                         
-        Image.asset(
-          url,
-          width: 30,
-          height: 30,
-            ),),
-        SizedBox(height: 10,),
-        Container(width: w, height: (h / 3), alignment: Alignment.center,
-        child: Text(t, textAlign: TextAlign.center ,style: TextStyle(fontSize: 18, color: Colors.white, fontStyle: FontStyle.italic, fontWeight: FontWeight.w500),),),
+        Container(
+          width: w,
+          height: (h / 2),
+          child: Image.asset(url, width: 30, height: 30),
+        ),
+        SizedBox(height: 10),
+        Container(
+          width: w,
+          height: (h / 3),
+          alignment: Alignment.center,
+          child: Text(
+            t,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
       ],
     ),
   );

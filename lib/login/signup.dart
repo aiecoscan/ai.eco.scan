@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
-import 'package:flutter/services.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -9,21 +8,11 @@ class SignUp extends StatefulWidget {
   State<SignUp> createState() => _SignUpState();
 }
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  runApp(SignUp());
-}
 
 class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Economica'),
-      home: Scaffold(
+    return Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(
           color: AppColors.bg_color,
@@ -280,7 +269,6 @@ class _SignUpState extends State<SignUp> {
             ],
           ),
         ),
-      ),
     );
   }
 }
