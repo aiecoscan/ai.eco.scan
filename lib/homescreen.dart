@@ -123,7 +123,10 @@ class _HomescreenState extends State<Homescreen> {
               // 3rd : Swipe to learn more ->
               TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Login()),
+                  );
                 },
                 child: Text(
                   "Press to continue",
@@ -142,7 +145,6 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 }
-
 
 Widget box(double w, double h, Color c, String t, String url) {
   return Container(
