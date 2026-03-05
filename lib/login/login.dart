@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
 import 'package:eco_scan/login/signup.dart';
+import 'package:eco_scan/login/forgot_password_screen.dart';
+import 'package:eco_scan/login/forgetpassword.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -132,12 +134,21 @@ class _LoginState extends State<Login> {
               padding: EdgeInsets.symmetric(horizontal: 35),
               width: double.infinity,
               height: 50,
-              child: Text(
-                "Forget Password?",
-                style: TextStyle(
-                  color: AppColors.font_color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    // MaterialPageRoute(builder: (context) => const ForgetPss()),
+                    MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                  );
+                },
+                child: Text(
+                  "Forget password",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.font_color,
+                  ),
                 ),
               ),
             ),
