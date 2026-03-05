@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
 import 'package:eco_scan/login/signup.dart';
 import 'package:eco_scan/login/forgot_password_screen.dart';
-import 'package:eco_scan/login/forgetpassword.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

@@ -2,16 +2,16 @@
 import 'package:flutter/material.dart';
 
 // لاسترداد صفحة plastic info
-import './waste_detail_screen.dart/plastic_info.dart';
+import 'waste_detail_screen.dart/plastic_info.dart';
 
 // لاسترداد صفحة paper info
-import './waste_detail_screen.dart/paper_info.dart';
+import 'waste_detail_screen.dart/paper_info.dart';
 
 // لاسترداد صفحة glass info
-import './waste_detail_screen.dart/glass_info.dart';
+import 'waste_detail_screen.dart/glass_info.dart';
 
 // لاسترداد صفحة biological info
-import './waste_detail_screen.dart/biological_info.dart';
+import 'waste_detail_screen.dart/biological_info.dart';
 
 // تعريف شاشة معلومات إعادة التدوير
 class LearnRecycleScreen extends StatelessWidget {
