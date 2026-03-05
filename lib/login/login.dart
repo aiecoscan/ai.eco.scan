@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
 import 'package:eco_scan/login/signup.dart';
 import 'package:eco_scan/login/forgot_password_screen.dart';
+import 'package:eco_scan/user_screens/home_screen.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -154,7 +155,17 @@ class _LoginState extends State<Login> {
 
             // Login Button
             MaterialButton(
-              onPressed: () {},
+              onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          HomeScreen(),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ),
+                  );
+                },
               minWidth: 300,
               height: 70,
               splashColor: Colors.lightGreenAccent,
