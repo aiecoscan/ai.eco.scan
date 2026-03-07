@@ -166,7 +166,7 @@ class _LoginState extends State<Login> {
                 String username = usernameController.text;
                 String password = passwordController.text;
 
-                if (username == "admin" && password == "admin") {
+                if (username == "admin" && password == "sambosa") {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
