@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
 import 'package:eco_scan/login/signup.dart';
 import 'package:eco_scan/login/forgot_password_screen.dart';
+import 'package:eco_scan/user_screens/home_screen.dart';
 import 'package:eco_scan/screens/admin_screens/adminscreen.dart';
 
 class Login extends StatefulWidget {
@@ -11,6 +12,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,6 +57,7 @@ class _LoginState extends State<Login> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextField(
+                    controller: usernameController,
                     style: TextStyle(
                       color: AppColors.font_color2,
                       fontSize: 22,
@@ -90,6 +94,7 @@ class _LoginState extends State<Login> {
                   ),
                   SizedBox(height: 15),
                   TextField(
+                    controller: passwordController,
                     style: TextStyle(
                       color: AppColors.font_color2,
                       fontSize: 22,
@@ -139,7 +144,9 @@ class _LoginState extends State<Login> {
                   Navigator.push(
                     context,
                     // MaterialPageRoute(builder: (context) => const ForgetPss()),
-                    MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const ForgotPasswordScreen(),
+                    ),
                   );
                 },
                 child: Text(
@@ -156,6 +163,10 @@ class _LoginState extends State<Login> {
             // Login Button
             MaterialButton(
               onPressed: () {
+                String username = usernameController.text;
+                String password = passwordController.text;
+
+                if (username == "admin" && password == "admin") {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
@@ -165,7 +176,18 @@ class _LoginState extends State<Login> {
                       reverseTransitionDuration: Duration.zero,
                     ),
                   );
-                },
+                } else {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          HomeScreen(),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                    ),
+                  );
+                }
+              },
               minWidth: 300,
               height: 70,
               splashColor: Colors.lightGreenAccent,
