@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       theme: ThemeData(
-        fontFamily: 'Economica', // اسم الفونت هنا
+        fontFamily: 'Economica',
       ),
 
       home: const Homescreen(),

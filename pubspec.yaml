@@ -37,9 +37,14 @@ dependencies:
   geolocator: ^10.1.0
   url_launcher: ^6.2.5
 
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/logo/iconD.png"
 
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
