@@ -7,6 +7,10 @@ import 'package:image_picker/image_picker.dart';
 // استيراد مكتبة التعامل مع الملفات لأن الصورة ستُحفظ كملف
 import 'dart:io';
 
+// 1. Import your classifier file
+import 'classifier.dart';
+//import 'classifierGrand.dart';
+
 // تعريف شاشة Scan Waste
 // StatefulWidget لأننا سنغيّر الواجهة عند اختيار صورة
 class ScanWasteScreen extends StatefulWidget {
@@ -23,6 +27,48 @@ class _ScanWasteScreenState extends State<ScanWasteScreen> {
   // كائن من مكتبة image_picker لفتح الكاميرا أو المعرض
   final ImagePicker picker = ImagePicker();
 
+  //Here start the local AI model
+  // 2. Create an instance of the Classifier and a variable for the result text
+
+  final Classifier _classifier = Classifier();
+  String _resultText = "Please take a picture or upload one";
+
+  //final ClassifierGrand _classifier = ClassifierGrand();
+  //List<String> _resultsList = ["Please take a picture"];
+
+  @override
+  void initState() {
+    super.initState();
+    // 3. Initialize the model when the screen loads
+    _classifier.init();
+  }
+
+  // Helper function to run classification and update UI
+  Future<void> _runClassification(File imageFile) async {
+    setState(() => _resultText = "Analyzing...");
+
+    final result = await _classifier.classify(imageFile);
+
+    setState(() {
+      _resultText =
+          "${result['label']}"; // (${(result['score'] * 100).toStringAsFixed(1)}%)";
+    });
+  }
+
+  /*
+  Future<void> _runClassification(File imageFile) async {
+    setState(() => _resultsList = ["Analyzing..."]);
+
+    final result = await _classifier.classifyGrand(imageFile);
+
+    setState(() {
+      image = result['image']; // This is the new image with boxes!
+      _resultsList = List<String>.from(result['results']);
+    });
+  }
+  */
+  //Here end the Local AI
+
   // دالة لفتح الكاميرا والتقاط صورة
   Future pickCamera() async {
     // فتح الكاميرا
@@ -34,6 +80,9 @@ class _ScanWasteScreenState extends State<ScanWasteScreen> {
       setState(() {
         image = File(picked.path);
       });
+
+      // 4. Run classification after picking
+      await _runClassification(image!);
     }
   }
 
@@ -48,7 +97,16 @@ class _ScanWasteScreenState extends State<ScanWasteScreen> {
       setState(() {
         image = File(picked.path);
       });
+      // 5. Run classification after picking
+      await _runClassification(image!);
     }
+  }
+
+  @override
+  void dispose() {
+    // 6. Clean up the interpreter when leaving the screen
+    _classifier.dispose();
+    super.dispose();
   }
 
   @override
@@ -80,15 +138,34 @@ class _ScanWasteScreenState extends State<ScanWasteScreen> {
                 style: TextStyle(color: Colors.white, fontSize: 28),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 30),
 
               // نص توضيحي للمستخدم
-              const Text(
-                "Please take a picture or upload one",
-                style: TextStyle(color: Color(0xFF00D492)),
+              Center(
+                child: Text(
+                  //"Please take a picture or upload one",
+                  _resultText,
+                  style: TextStyle(color: Color(0xFF00D492), fontSize: 25),
+                ),
               ),
 
-              const SizedBox(height: 40),
+              /*
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _resultsList
+                    .map(
+                      (text) => Text(
+                        text,
+                        style: const TextStyle(
+                          color: Color(0xFF00D492),
+                          fontSize: 16,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              */
+              const SizedBox(height: 20),
 
               // إطار عرض الصورة
               Center(
@@ -148,14 +225,17 @@ class _ScanWasteScreenState extends State<ScanWasteScreen> {
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 15),
 
               // كلمة or بين الخيارين
               const Center(
-                child: Text("or", style: TextStyle(color: Colors.white)),
+                child: Text(
+                  "or",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
               // زر اختيار صورة من المعرض
               SizedBox(
