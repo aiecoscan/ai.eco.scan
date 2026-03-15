@@ -21,14 +21,14 @@ class GolfCityScreen extends StatelessWidget {
       permission = await Geolocator.requestPermission();
     }
 
-    // الحصول على الموقع الحالي
+    /*// الحصول على الموقع الحالي
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
-    );
+    );*/
 
     // إنشاء رابط Google Maps باستخدام الإحداثيات
     final Uri googleUrl = Uri.parse(
-      "https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}",
+      "https://www.google.com/maps/search/?api=1&query=golf city mall",
     );
 
     // فتح Google Maps

@@ -17,14 +17,14 @@ class ElSalamBusStopScreen extends StatelessWidget {
       permission = await Geolocator.requestPermission();
     }
 
-    // الحصول على الموقع الحالي
+    /*// الحصول على الموقع الحالي
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
-    );
+    );*/
 
     // إنشاء رابط Google Maps
     final Uri googleUrl = Uri.parse(
-      "https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}",
+      "https://www.google.com/maps/search/?api=1&query=el salam",
     );
 
     // فتح Google Maps
@@ -198,7 +198,9 @@ class ElSalamBusStopScreen extends StatelessWidget {
 
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF9AE600).withOpacity(0.6),
+                    backgroundColor: const Color(
+                      0xFF9AE600,
+                    ), //.withOpacity(0.6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
