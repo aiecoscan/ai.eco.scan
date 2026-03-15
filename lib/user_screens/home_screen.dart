@@ -1,4 +1,5 @@
 // استيراد مكتبة Flutter الأساسية لبناء الواجهة
+import 'package:eco_scan/screens/user_screens/locate_bin_screen.dart';
 import 'package:flutter/material.dart';
 
 // استيراد شاشة المسح حتى نتمكن من الانتقال إليها
@@ -145,10 +146,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                    // زر Locate Bin
-                    const FeatureBox(
-                      icon: Icons.location_on,
-                      title: "Locate Bin",
+                    // زر Locate bin screen
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LocateBinScreen(),
+                          ),
+                        );
+                      },
+                      child: // زر Locate Bin
+                      const FeatureBox(
+                        icon: Icons.location_on,
+                        title: "Locate Bin",
+                      ),
                     ),
 
                     // زر Learn About Recycle
