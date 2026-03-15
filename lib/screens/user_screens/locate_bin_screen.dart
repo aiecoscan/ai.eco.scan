@@ -10,6 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 // استرداد صفحة bins_result
 import 'bins_result_screen.dart';
 
+late final TextEditingController city;
+late final TextEditingController district;
+
 class LocateBinScreen extends StatelessWidget {
   const LocateBinScreen({super.key});
 
@@ -94,6 +97,7 @@ class LocateBinScreen extends StatelessWidget {
 
                     // إدخال المدينة
                     TextField(
+                      controller: city = TextEditingController(),
                       cursorColor: const Color(0xFF9AE600),
                       style: const TextStyle(color: Colors.white),
 
@@ -127,6 +131,7 @@ class LocateBinScreen extends StatelessWidget {
 
                     // إدخال المنطقة
                     TextField(
+                      controller: district = TextEditingController(),
                       cursorColor: const Color(0xFF9AE600),
                       style: const TextStyle(color: Colors.white),
 
@@ -225,7 +230,8 @@ class LocateBinScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const BinsResultScreen(),
+                        builder: (context) =>
+                            BinsResultScreen(city: city, district: district),
                       ),
                     );
                   },
