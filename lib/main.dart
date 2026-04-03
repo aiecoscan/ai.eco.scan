@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:eco_scan/homescreen.dart';
+import 'package:eco_scan/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        fontFamily: 'Economica',
-      ),
+      theme: ThemeData(fontFamily: 'Economica'),
 
       home: const Homescreen(),
     );
