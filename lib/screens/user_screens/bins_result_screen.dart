@@ -17,8 +17,13 @@ import './bin location details screens/elsalam_bus_stop.dart';
 import './bin location details screens/sun_city.dart';
 
 class BinsResultScreen extends StatelessWidget {
-  const BinsResultScreen({super.key});
-
+  const BinsResultScreen({
+    super.key,
+    required this.city,
+    required this.district,
+  });
+  final TextEditingController city;
+  final TextEditingController district;
   // ===============================
   // قائمة بيانات الصناديق
   // عدلت النوع ليكون واضح ومنظم
@@ -80,9 +85,9 @@ class BinsResultScreen extends StatelessWidget {
               // ===============================
               // عنوان الصفحة
               // ===============================
-              const Text(
-                "City, District - Bins",
-                style: TextStyle(color: Colors.white, fontSize: 28),
+              Text(
+                "${city.text}, ${district.text} - Bins",
+                style: const TextStyle(color: Colors.white, fontSize: 28),
               ),
 
               const SizedBox(height: 5),

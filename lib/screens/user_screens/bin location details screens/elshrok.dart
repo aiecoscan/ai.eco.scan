@@ -21,14 +21,14 @@ class ElshrokScreen extends StatelessWidget {
       permission = await Geolocator.requestPermission();
     }
 
-    // 2) الحصول على الموقع الحالي للجهاز
+    /*// 2) الحصول على الموقع الحالي للجهاز
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
-    );
+    );*/
 
     // 3) إنشاء رابط Google Maps باستخدام الإحداثيات
     final Uri googleUrl = Uri.parse(
-      "https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}",
+      "https://www.google.com/maps/search/?api=1&query=el shorouk",
     );
 
     // 4) فتح Google Maps
