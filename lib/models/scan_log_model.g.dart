@@ -31,7 +31,7 @@ class ScanLogModelAdapter extends TypeAdapter<ScanLogModel> {
   @override
   void write(BinaryWriter writer, ScanLogModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +47,9 @@ class ScanLogModelAdapter extends TypeAdapter<ScanLogModel> {
       ..writeByte(6)
       ..write(obj.scannedAt)
       ..writeByte(7)
-      ..write(obj.pointsEarned);
+      ..write(obj.pointsEarned)
+      ..writeByte(8)
+      ..write(obj._weightGrams);
   }
 
   @override

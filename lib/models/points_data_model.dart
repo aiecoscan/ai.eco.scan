@@ -10,6 +10,36 @@
 // Because points could eventually come from non-scan sources
 // (referrals, bonuses, redemptions). This model handles that.
 // ============================================================
+// ============================================================
+// POINTS DATA MODEL — Updated
+// ============================================================
+// Change: Added HiveField(7) recycledGrams (double)
+//
+// WHY not change field 2 (recycledKg int → double):
+//   Same reason as scan_log_model — changing the type of an
+//   existing Hive field breaks deserialization of old records.
+//   We ADD a new field (7) for the precise float weight.
+//   Field 2 (recycledKg) is kept as int for backwards compat
+//   but is no longer written to — only recycledGrams is updated.
+//   The display getter converts grams → kg for the UI.
+//
+// Also fixed: treesSaved now uses recycledGrams so it scales
+//   correctly with the new per-item gram weights.
+// ============================================================
+// ============================================================
+// POINTS DATA MODEL — Migration Fix
+// ============================================================
+// Same fix as scan_log_model.dart — same root cause.
+//
+// @HiveField(7) double recycledGrams was declared non-nullable.
+// Old PointsDataModel records on device have no bytes for field 7.
+// The regenerated adapter reads null and crashes casting to double.
+//
+// Fix: declare the backing field as double? (_recycledGrams),
+// expose it through a getter `recycledGrams` that returns ?? 0.0.
+// The setter also goes through a private field so Hive can
+// mutate it (since PointsDataModel needs to accumulate weight).
+// ============================================================
 
 import 'package:hive/hive.dart';
 
@@ -17,7 +47,6 @@ part 'points_data_model.g.dart';
 
 @HiveType(typeId: 2) // typeId 2
 class PointsDataModel extends HiveObject {
-
   @HiveField(0)
   final String userId; // FK to UserModel.id
 
@@ -28,6 +57,8 @@ class PointsDataModel extends HiveObject {
   @HiveField(2)
   int recycledKg; // Maps to weight_kg from Recycling_Transaction
   // We estimate: 1 scan = ~1kg for demo purposes
+  // KEPT for backwards compat — no longer written to
+  // Use recycledGrams for all new logic
 
   @HiveField(3)
   int recycledTimes; // Total number of successful scans
@@ -43,6 +74,12 @@ class PointsDataModel extends HiveObject {
   @HiveField(6)
   List<DateTime> transactionDates; // When each transaction happened
 
+  // NEW: precise weight in grams — replaces recycledKg for display
+  // Metal=13g, Plastic=18g, default=16g per scan
+  // FIX: nullable backing field — old records read null here, no crash.
+  @HiveField(7)
+  double? _recycledGrams;
+
   PointsDataModel({
     required this.userId,
     this.totalPoints = 0,
@@ -51,14 +88,36 @@ class PointsDataModel extends HiveObject {
     List<String>? rewardTypes,
     List<int>? pointAmounts,
     List<DateTime>? transactionDates,
-  })  : rewardTypes = rewardTypes ?? [],
-        pointAmounts = pointAmounts ?? [],
-        transactionDates = transactionDates ?? [];
+    double? recycledGrams,
+  }) : _recycledGrams = recycledGrams,
+       rewardTypes = rewardTypes ?? [],
+       pointAmounts = pointAmounts ?? [],
+       transactionDates = transactionDates ?? [];
+
+  // ── Safe getter: returns stored value or 0.0 for old records ──
+  double get recycledGrams => _recycledGrams ?? 0.0;
+
+  // ── Setter: used by PointsService to accumulate weight ────────
+  set recycledGrams(double value) {
+    _recycledGrams = value;
+  }
 
   // ── Helpers ────────────────────────────────────────────────
 
+  /// Total recycled weight as a formatted string for the UI.
+  /// Shows grams if under 1kg, otherwise shows kg with 2 decimals.
+  /// e.g. "754g" or "1.23 kg"
+  String get recycledWeightDisplay {
+    if (recycledGrams < 1000) {
+      return '${recycledGrams.toStringAsFixed(0)}g';
+    }
+    return '${(recycledGrams / 1000).toStringAsFixed(2)} kg';
+  }
+
   /// How many trees saved — your app shows this on HomeScreen.
   /// Using the common estimate: 1 tree = ~8333 sheets = ~80kg paper.
-  /// For a fun metric, we say every 10kg recycled = 1 tree saved.
-  int get treesSaved => (recycledKg / 10).floor();
+  /// For a fun metric, we say every 10kg recycled = 1 tree saved. int get treesSaved => (recycledKg / 10).floor();
+  /// Trees saved — based on accurate gram weight now.
+  /// 1 tree saved per 500g recycled (reasonable approximation).
+  int get treesSaved => (recycledGrams / 500).floor();
 }

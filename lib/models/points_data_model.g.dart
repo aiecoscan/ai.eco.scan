@@ -24,13 +24,13 @@ class PointsDataModelAdapter extends TypeAdapter<PointsDataModel> {
       rewardTypes: (fields[4] as List?)?.cast<String>(),
       pointAmounts: (fields[5] as List?)?.cast<int>(),
       transactionDates: (fields[6] as List?)?.cast<DateTime>(),
-    );
+    ).._recycledGrams = fields[7] as double?;
   }
 
   @override
   void write(BinaryWriter writer, PointsDataModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
@@ -44,7 +44,9 @@ class PointsDataModelAdapter extends TypeAdapter<PointsDataModel> {
       ..writeByte(5)
       ..write(obj.pointAmounts)
       ..writeByte(6)
-      ..write(obj.transactionDates);
+      ..write(obj.transactionDates)
+      ..writeByte(7)
+      ..write(obj._recycledGrams);
   }
 
   @override

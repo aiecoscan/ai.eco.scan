@@ -12,6 +12,24 @@
 //   - Box-level stats (entry count, etc.)
 //   - Color-coded by data type
 // ============================================================
+// ============================================================
+// HIVE INSPECTOR SCREEN — Updated
+// ============================================================
+// Change: Scan record deletion now cascades to points.
+//
+// OLD behaviour:
+//   await box.delete(key)  ← just removes the row, points stay wrong
+//
+// NEW behaviour:
+//   await ScanService.deleteScanAndReversePoints(scanId)
+//   This internally:
+//     1. Reads the scan to get userId, pointsEarned, weightGrams
+//     2. Calls PointsService.removeScanPoints() to subtract them
+//     3. Calls AuthService.addPointsToUser(userId, -points)
+//     4. THEN deletes the scan record
+//
+// Everything else (Users, Points, Session tabs) is unchanged.
+// ============================================================
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -19,6 +37,7 @@ import 'package:eco_scan/models/hive_init.dart';
 import 'package:eco_scan/models/user_model.dart';
 import 'package:eco_scan/models/scan_log_model.dart';
 import 'package:eco_scan/models/points_data_model.dart';
+import 'package:eco_scan/services/scan_service.dart'; // NEW
 
 class HiveInspectorScreen extends StatefulWidget {
   const HiveInspectorScreen({super.key});
@@ -66,7 +85,6 @@ class _HiveInspectorScreenState extends State<HiveInspectorScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF011C14),
-
       appBar: AppBar(
         backgroundColor: const Color(0xFF013C2E),
         leading: IconButton(
@@ -88,8 +106,8 @@ class _HiveInspectorScreenState extends State<HiveInspectorScreen>
           ],
         ),
         actions: [
-          // Refresh button
           IconButton(
+            // Refresh button
             icon: const Icon(Icons.refresh, color: Color(0xFF9AE600)),
             tooltip: 'Refresh',
             onPressed: _refresh,
@@ -127,7 +145,9 @@ class _HiveInspectorScreenState extends State<HiveInspectorScreen>
         controller: _tabController,
         children: [
           _UsersBoxView(onChanged: _refresh),
-          _ScansBoxView(onChanged: _refresh),
+          _ScansBoxView(
+            onChanged: _refresh,
+          ), // passes _refresh so it triggers setState
           _PointsBoxView(onChanged: _refresh),
           _SessionBoxView(onChanged: _refresh),
         ],
@@ -191,7 +211,7 @@ class _UsersBoxView extends StatelessWidget {
 }
 
 // ============================================================
-// SCANS BOX TAB
+// SCANS BOX TAB — Updated delete to cascade to points
 // ============================================================
 class _ScansBoxView extends StatelessWidget {
   final VoidCallback onChanged;
@@ -219,21 +239,29 @@ class _ScansBoxView extends StatelessWidget {
         final scan = box.get(key);
         if (scan == null) return const SizedBox();
 
-        final isPlastic = scan.wasteType == 'PLASTIC';
-        final typeColor = isPlastic
-            ? const Color(0xFF4CAF50)
-            : const Color(0xFFFF7043);
-
         return _InspectorCard(
           title: scan.wasteType,
-          subtitle: scan.timeDisplay,
+          subtitle:
+              '${scan.timeDisplay} · ${scan.confidenceDisplay} confidence',
           badge: '+${scan.pointsEarned} pts',
           badgeColor: const Color(0xFF9AE600),
-          keyString: 'Key: ${key.toString().substring(0, 12)}...',
+          keyString:
+              'Key: ${key.toString().length > 12 ? key.toString().substring(0, 12) + "..." : key}',
           onDelete: () async {
-            final confirm = await _confirmDelete(context, 'this scan');
+            // CHANGED: show what will be reversed in the confirm dialog
+            final confirm = await _confirmDeleteScan(
+              context,
+              scan.wasteType,
+              scan.pointsEarned,
+            );
+
             if (confirm) {
-              await box.delete(key);
+              // NEW: cascading delete — reverses points before deleting
+              // ScanService.deleteScanAndReversePoints() does:
+              //   1. PointsService.removeScanPoints(userId, points, weight)
+              //   2. AuthService.addPointsToUser(userId, -points)
+              //   3. box.delete(scanId)
+              await ScanService.deleteScanAndReversePoints(scan.id);
               onChanged();
             }
           },
@@ -242,6 +270,7 @@ class _ScansBoxView extends StatelessWidget {
             'User ID': scan.userId,
             'Waste Type': scan.wasteType,
             'Confidence': scan.confidenceDisplay,
+            'Weight': scan.weightDisplay,
             'Points Earned': '${scan.pointsEarned} pts',
             'Status': scan.status,
             'Scanned At': _formatDate(scan.scannedAt),
@@ -278,7 +307,8 @@ class _PointsBoxView extends StatelessWidget {
         if (data == null) return const SizedBox();
 
         return _InspectorCard(
-          title: 'Points — User ${data.userId.substring(0, 8)}...',
+          title:
+              'Points — User ${data.userId.length > 8 ? data.userId.substring(0, 8) : data.userId}...',
           subtitle:
               '${data.totalPoints} total points · ${data.recycledTimes} scans',
           badge: '${data.treesSaved} 🌳',
@@ -294,11 +324,10 @@ class _PointsBoxView extends StatelessWidget {
           fields: {
             'User ID': data.userId,
             'Total Points': '${data.totalPoints}',
-            'Recycled Kg': '${data.recycledKg} kg',
+            'Recycled Weight': data.recycledWeightDisplay,
             'Recycled Times': '${data.recycledTimes}',
             'Trees Saved': '${data.treesSaved}',
             'Transaction Count': '${data.rewardTypes.length}',
-            // Show the last 5 transactions inline
             if (data.rewardTypes.isNotEmpty)
               'Recent Transactions': List.generate(
                 data.rewardTypes.length > 5 ? 5 : data.rewardTypes.length,
@@ -456,11 +485,8 @@ class _SessionBoxView extends StatelessWidget {
 // ============================================================
 
 class _InspectorCard extends StatefulWidget {
-  final String title;
-  final String subtitle;
-  final String badge;
+  final String title, subtitle, badge, keyString;
   final Color badgeColor;
-  final String keyString;
   final Map<String, String> fields;
   final VoidCallback onDelete;
 
@@ -497,7 +523,6 @@ class _InspectorCardState extends State<_InspectorCard> {
       ),
       child: Column(
         children: [
-          // ── Header row ─────────────────────────────────
           InkWell(
             onTap: () => setState(() => _expanded = !_expanded),
             borderRadius: BorderRadius.circular(14),
@@ -505,7 +530,6 @@ class _InspectorCardState extends State<_InspectorCard> {
               padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  // Expand arrow
                   AnimatedRotation(
                     turns: _expanded ? 0.25 : 0,
                     duration: const Duration(milliseconds: 200),
@@ -515,10 +539,7 @@ class _InspectorCardState extends State<_InspectorCard> {
                       size: 20,
                     ),
                   ),
-
                   const SizedBox(width: 10),
-
-                  // Title + subtitle
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,8 +562,6 @@ class _InspectorCardState extends State<_InspectorCard> {
                       ],
                     ),
                   ),
-
-                  // Badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -568,15 +587,12 @@ class _InspectorCardState extends State<_InspectorCard> {
               ),
             ),
           ),
-
-          // ── Expanded detail section ─────────────────────
           if (_expanded) ...[
             const Divider(color: Colors.white10, height: 1),
             Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
                 children: [
-                  // Hive key display
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -596,15 +612,9 @@ class _InspectorCardState extends State<_InspectorCard> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
-                  // All fields
                   _FieldCard(fields: widget.fields),
-
                   const SizedBox(height: 12),
-
-                  // Delete button
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
@@ -634,6 +644,7 @@ class _InspectorCardState extends State<_InspectorCard> {
 }
 
 // ── Field display table ───────────────────────────────────────
+
 class _FieldCard extends StatelessWidget {
   final Map<String, String> fields;
   const _FieldCard({required this.fields});
@@ -660,7 +671,6 @@ class _FieldCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Field name
                 SizedBox(
                   width: 110,
                   child: Text(
@@ -673,7 +683,6 @@ class _FieldCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Field value — flexible to handle long text
                 Expanded(
                   child: Text(
                     entry.value,
@@ -718,6 +727,7 @@ class _EmptyState extends StatelessWidget {
 }
 
 // ── Delete confirmation dialog ────────────────────────────────
+// ── Confirm delete (generic) ──────────────────────────────────
 Future<bool> _confirmDelete(BuildContext context, String name) async {
   final result = await showDialog<bool>(
     context: context,
@@ -729,7 +739,7 @@ Future<bool> _confirmDelete(BuildContext context, String name) async {
         style: TextStyle(color: Colors.white),
       ),
       content: Text(
-        'Are you sure you want to delete "$name"?\nThis cannot be undone.',
+        'Delete "$name"?\nThis cannot be undone.',
         style: const TextStyle(color: Colors.white60),
       ),
       actions: [
@@ -753,8 +763,52 @@ Future<bool> _confirmDelete(BuildContext context, String name) async {
   return result ?? false;
 }
 
-// ── Date formatter helper ─────────────────────────────────────
+// ── Confirm delete scan — shows what will be reversed ─────────
+Future<bool> _confirmDeleteScan(
+  BuildContext context,
+  String wasteType,
+  int points,
+) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: const Color(0xFF013C2E),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text(
+        'Delete Scan Record?',
+        style: TextStyle(color: Colors.white),
+      ),
+      content: Text(
+        'This will delete the $wasteType scan and reverse '
+        '$points points from the user\'s balance.\n\n'
+        'This cannot be undone.',
+        style: const TextStyle(color: Colors.white60),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(color: Color(0xFF9AE600)),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text(
+            'Delete & Reverse',
+            style: TextStyle(color: Colors.redAccent),
+          ),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
+}
+
 String _formatDate(DateTime dt) {
-  return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} '
-      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}:${dt.second.toString().padLeft(2, '0')}';
+  return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-'
+      '${dt.day.toString().padLeft(2, '0')} '
+      '${dt.hour.toString().padLeft(2, '0')}:'
+      '${dt.minute.toString().padLeft(2, '0')}:'
+      '${dt.second.toString().padLeft(2, '0')}';
 }

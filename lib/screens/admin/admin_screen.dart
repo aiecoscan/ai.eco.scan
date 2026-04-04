@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eco_scan/screens/admin/manage_bins_screen.dart';
+import 'package:eco_scan/screens/admin/hive_inspector_screen.dart'; // NEW
 
 // ============================================================
 // ADMINSCREEN.DART — Updated
@@ -8,11 +9,71 @@ import 'package:eco_scan/screens/admin/manage_bins_screen.dart';
 // The inspector opens HiveInspectorScreen which lets the admin
 // browse all stored data across every Hive box.
 // ============================================================
+// ============================================================
+// ADMIN_SCREEN.DART — Updated
+// ============================================================
+// Changes: Statistics card now shows live data from Hive.
+//
+// 1. Total Users    = count of non-admin UserModels in userBox
+// 2. Earned Points  = sum of all users' totalPoints (was "Redeemed")
+// 3. Recycle Rate   = totalScans / (maxScansPerUser × totalUsers)
+//    Formula from spec: e.g. 3 users scan [3,1,2] → 6/(3×3)=66.6%
+//
+// Admin screen is StatefulWidget now (was StatelessWidget)
+// because stats need to refresh when returning from sub-screens.
+// ============================================================
 
-import 'package:eco_scan/screens/admin/hive_inspector_screen.dart'; // NEW
+import 'package:hive/hive.dart';
+import 'package:eco_scan/models/hive_init.dart';
+import 'package:eco_scan/models/user_model.dart';
+import 'package:eco_scan/services/points_service.dart';
+import 'package:eco_scan/services/scan_service.dart';
 
-class AdminScreen extends StatelessWidget {
+class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
+
+  @override
+  State<AdminScreen> createState() => _AdminScreenState();
+}
+
+class _AdminScreenState extends State<AdminScreen> {
+  // Live stats loaded from Hive
+  int _totalUsers = 0;
+  int _earnedPoints = 0;
+  String _recycleRate = '0%';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  // Called on init and whenever we return from a sub-screen
+  void _loadStats() {
+    final userBox = Hive.box<UserModel>(HiveInit.userBox);
+
+    // 1. Total Users — count non-admin users only
+    final totalUsers = userBox.values.where((u) => !u.isAdmin).length;
+
+    // 2. Earned Points — sum across all non-admin users
+    final earnedPoints = PointsService.getTotalEarnedPointsAllUsers();
+
+    // 3. Recycle Rate — using the formula from spec
+    final rate = PointsService.getRecycleRate();
+    final rateStr = '${(rate * 100).toStringAsFixed(1)}%';
+
+    setState(() {
+      _totalUsers = totalUsers;
+      _earnedPoints = earnedPoints;
+      _recycleRate = rateStr;
+    });
+  }
+
+  // Navigate to a page and refresh stats on return
+  Future<void> _navAndRefresh(Widget page) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    _loadStats(); // refresh after returning
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +105,7 @@ class AdminScreen extends StatelessWidget {
                     // Example: Long press on "Welcome Back, Admin"
                     GestureDetector(
                       onLongPress: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const HiveInspectorScreen(),
-                          ),
-                        );
+                        _navAndRefresh(const HiveInspectorScreen());
                       },
                       child: const Text(
                         "Welcome Back, Admin",
@@ -75,20 +131,18 @@ class AdminScreen extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: adminButton(
-                      context: context,
+                    child: _adminButton(
                       icon: Icons.delete,
                       title: "Manage Bins",
-                      page: const ManageBinsScreen(), // الصفحة هنا
+                      onTap: () => _navAndRefresh(const ManageBinsScreen()),
                     ),
                   ),
                   const SizedBox(width: 15),
                   Expanded(
-                    child: adminButton(
-                      context: context,
+                    child: _adminButton(
                       icon: Icons.map,
                       title: "Geo Map",
-                      page: const ManageBinsScreen(), // الصفحة هنا
+                      onTap: () => _navAndRefresh(const ManageBinsScreen()),
                     ),
                   ),
                 ],
@@ -114,22 +168,23 @@ class AdminScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
+                      // Row 1: Earned Points + Total Users
                       Row(
                         children: [
                           Expanded(
-                            child: statCard(
-                              title: "Points Redeemed",
-                              value: "150K",
+                            child: _statCard(
+                              title: "Earned Points", // was "Redeemed"
+                              value: _earnedPoints > 999
+                                  ? '${(_earnedPoints / 1000).toStringAsFixed(1)}K'
+                                  : '$_earnedPoints',
                               icon: Icons.eco,
                             ),
                           ),
-
                           const SizedBox(width: 15),
-
                           Expanded(
-                            child: statCard(
+                            child: _statCard(
                               title: "Total Users",
-                              value: "5000",
+                              value: '$_totalUsers', // live from Hive
                               icon: Icons.person,
                             ),
                           ),
@@ -138,12 +193,13 @@ class AdminScreen extends StatelessWidget {
 
                       const SizedBox(height: 20),
 
+                      // Row 2: Recycle Rate — full width
                       Row(
                         children: [
                           Expanded(
-                            child: statCard(
+                            child: _statCard(
                               title: "Recycle Rate",
-                              value: "70%",
+                              value: _recycleRate, // live formula result
                               icon: Icons.recycling,
                             ),
                           ),
@@ -162,71 +218,33 @@ class AdminScreen extends StatelessWidget {
 
   /// Admin Button
   // Updated adminButton with optional subtitle, fullWidth, and color params
-  Widget adminButton({
-    required BuildContext context,
+  Widget _adminButton({
     required IconData icon,
     required String title,
-    required Widget page,
-    String? subtitle,
-    bool fullWidth = false,
-    Color color = const Color(0xFF0B6A52),
-    Color accentColor = Colors.greenAccent,
+    required VoidCallback onTap,
   }) {
-    final content = GestureDetector(
-      onTap: () =>
-          Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        height: subtitle != null ? 80 : 120,
-        width: fullWidth ? double.infinity : null,
+        height: 120,
         decoration: BoxDecoration(
-          color: color,
+          color: const Color(0xFF0B6A52),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Row(
-          mainAxisAlignment: subtitle != null
-              ? MainAxisAlignment.start
-              : MainAxisAlignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (subtitle != null) const SizedBox(width: 20),
-            Icon(icon, size: 30, color: accentColor),
-            if (subtitle != null) ...[
-              const SizedBox(width: 16),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(color: Colors.white, fontSize: 17),
-                  ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: accentColor.withOpacity(0.7),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ] else ...[
-              const SizedBox(width: 0),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 8),
-                  Text(title, style: const TextStyle(color: Colors.white)),
-                ],
-              ),
-            ],
+            Icon(icon, size: 35, color: Colors.greenAccent),
+            const SizedBox(height: 10),
+            Text(title, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),
     );
-    return content;
   }
 
   /// Statistics Card
-  Widget statCard({
+  Widget _statCard({
     required String title,
     required String value,
     required IconData icon,
@@ -243,7 +261,11 @@ class AdminScreen extends StatelessWidget {
         children: [
           Icon(icon, color: Colors.black),
           const SizedBox(height: 5),
-          Text("$title\n$value", textAlign: TextAlign.center),
+          Text(
+            "$title\n$value",
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );

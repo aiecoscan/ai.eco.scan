@@ -61,7 +61,7 @@ class _HomescreenState extends State<Homescreen> {
                       height: 60,
                       alignment: Alignment.center,
                       child: Text(
-                        "Save Our Plant",
+                        "Save Our Planet",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 40,
