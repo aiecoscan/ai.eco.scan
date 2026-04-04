@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:eco_scan/constants/colors.dart';
 import 'package:eco_scan/login/login.dart';
 
-
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
 
@@ -18,7 +17,7 @@ class _HomescreenState extends State<Homescreen> {
       theme: ThemeData(fontFamily: 'Economica'),
       home: Scaffold(
         body: Container(
-          color: AppColors.bg_color,
+          color: AppColors.bgColor,
           width: double.infinity,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +41,7 @@ class _HomescreenState extends State<Homescreen> {
                           child: Text(
                             "EcoScan",
                             style: TextStyle(
-                              color: AppColors.font_color,
+                              color: AppColors.fontColor,
                               fontSize: 70,
                               fontFamily: "Economica",
                               fontWeight: FontWeight.w900,
@@ -83,7 +82,7 @@ class _HomescreenState extends State<Homescreen> {
                   box(
                     150,
                     200,
-                    AppColors.bg_color2,
+                    AppColors.bgColor2,
                     "Clean your\nStreets",
                     "assets/icons/recycle.png",
                   ),
@@ -91,7 +90,7 @@ class _HomescreenState extends State<Homescreen> {
                   box(
                     150,
                     200,
-                    AppColors.bg_color2,
+                    AppColors.bgColor2,
                     "Earn Points\n&Money",
                     "assets/icons/reward-points.png",
                   ),
@@ -104,7 +103,7 @@ class _HomescreenState extends State<Homescreen> {
                   box(
                     150,
                     200,
-                    AppColors.bg_color2,
+                    AppColors.bgColor2,
                     "Learn About\nRecycling",
                     "assets/icons/book.png",
                   ),
@@ -112,7 +111,7 @@ class _HomescreenState extends State<Homescreen> {
                   box(
                     150,
                     200,
-                    AppColors.bg_color2,
+                    AppColors.bgColor2,
                     "Help Others\nLive Cleanly",
                     "assets/icons/help.png",
                   ),

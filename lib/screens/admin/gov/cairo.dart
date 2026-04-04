@@ -45,7 +45,7 @@ class CairoBinsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 26,
                   fontStyle: FontStyle.italic,
-                  color: AppColors.font_color,
+                  color: AppColors.fontColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),

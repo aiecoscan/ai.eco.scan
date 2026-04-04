@@ -4,21 +4,51 @@ import 'scan_waste_screen.dart'; // استيراد شاشة المسح حتى ن
 import 'learn_recycle_screen.dart'; // استيراد شاشة Learn About Recycle حتى نتمكن من الانتقال إليها
 import 'green_points_screen.dart'; // استيراد شاشة green points حتى نتمكن من الانتقال إليها
 
-// تعريف الشاشة الرئيسية للتطبيق
-// استخدمنا StatefulWidget لأن القيم (النقاط والأشجار) ستتغير لاحقًا
+// NEW: Import model and services
+import 'package:eco_scan/models/user_model.dart';
+import 'package:eco_scan/services/points_service.dart';
+
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  // استخدمنا StatefulWidget لأن القيم (النقاط والأشجار) ستتغير لاحقًا
+  // NEW: Accept user from login — replaces hardcoded "Welcome Back, User"
+  final UserModel user;
+
+  const HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // متغير يمثل عدد النقاط التي حصل عليها المستخدم
+  /*// متغير يمثل عدد النقاط التي حصل عليها المستخدم
   int points = 1320;
-
   // متغير يمثل عدد الأشجار التي تم إنقاذها
-  int treesSaved = 50;
+  int treesSaved = 50;*/
+
+  // These are now loaded from PointsService instead of being hardcoded
+  int _points = 0;
+  int _treesSaved = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load live data from services when screen opens
+    _loadData();
+  }
+
+  void _loadData() {
+    // PointsService.getTotal() reads from Hive — no Hive code in the screen
+    setState(() {
+      _points = PointsService.getTotal(widget.user.id);
+      _treesSaved = PointsService.getTreesSaved(widget.user.id);
+    });
+  }
+
+  // NEW: Called when returning from ScanScreen so points refresh
+  // Without this, the HomeScreen would show stale data after a scan
+  void _onReturnFromScan() {
+    _loadData(); // Reload from Hive
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "Welcome Back, User",
-                    style: TextStyle(color: Colors.white, fontSize: 28),
+                  // CHANGED: Shows real user name from UserModel
+                  Text(
+                    "Welcome Back, ${widget.user.name.split(' ').first}",
+                    style: const TextStyle(color: Colors.white, fontSize: 28),
                   ),
 
                   // صورة المستخدم
@@ -57,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
               // صندوق الإحصائيات (النقاط + الأشجار)
               Container(
                 padding: const EdgeInsets.all(16),
-
                 decoration: BoxDecoration(
                   color: const Color(0xFF9AE600),
                   borderRadius: BorderRadius.circular(20),
@@ -76,8 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
 
                         // عرض قيمة النقاط باستخدام المتغير
+                        // CHANGED: _points is now live from PointsService
                         Text(
-                          "Points: $points",
+                          "Points: $_points",
                           style: const TextStyle(
                             fontSize: 20,
                             color: Colors.black,
@@ -90,14 +121,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     // الجزء الخاص بعدد الأشجار
                     Column(
                       children: [
+                        // CHANGED: _treesSaved is now live from PointsService
                         Text(
-                          "Over $treesSaved Trees",
+                          "Over $_treesSaved Trees",
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.black,
                           ),
                         ),
-
                         const Text(
                           "Are Saved",
                           style: TextStyle(fontSize: 16, color: Colors.black),
@@ -115,7 +146,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: GridView.count(
                   // عدد الأعمدة في الشبكة
                   crossAxisCount: 2,
-
                   // المسافة بين العناصر
                   crossAxisSpacing: 20,
                   mainAxisSpacing: 20,
@@ -123,16 +153,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     // زر Scan Waste
                     GestureDetector(
-                      onTap: () {
-                        // الانتقال إلى شاشة المسح
-                        Navigator.push(
+                      onTap: () async {
+                        // CHANGED: await the navigation so we can refresh on return
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ScanWasteScreen(),
+                            builder: (context) =>
+                                ScanWasteScreen(user: widget.user),
                           ),
                         );
+                        // Refresh points when user comes back from scan
+                        _onReturnFromScan();
                       },
-
                       child: const FeatureBox(
                         icon: Icons.camera_alt,
                         title: "Scan Waste",
@@ -175,15 +207,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // زر Check Green Points
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        // CHANGED: await so points refresh when coming back
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const GreenPointsScreen(),
+                            builder: (context) =>
+                                GreenPointsScreen(user: widget.user),
                           ),
                         );
+                        _onReturnFromScan(); // Refresh after visiting points screen
                       },
-
                       child: const FeatureBox(
                         icon: Icons.eco,
                         title: "Check Your Green Points",

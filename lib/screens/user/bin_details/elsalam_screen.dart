@@ -198,9 +198,7 @@ class ElSalamBusStopScreen extends StatelessWidget {
 
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(
-                      0xFF9AE600,
-                    ), //.withOpacity(0.6),
+                    backgroundColor: const Color(0xFF9AE600).withOpacity(0.6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),

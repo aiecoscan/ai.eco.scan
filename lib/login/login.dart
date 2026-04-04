@@ -5,6 +5,25 @@ import 'package:eco_scan/login/forgot_password_screen.dart';
 import 'package:eco_scan/screens/user/home_screen.dart';
 import 'package:eco_scan/screens/admin/admin_screen.dart';
 
+// NEW: Import AuthService — this is the ONLY new import needed
+import 'package:eco_scan/services/auth_service.dart';
+
+// ============================================================
+// LOGIN.DART — Fixed
+// ============================================================
+// BUG 2 FIX — isLoading getting stuck:
+//   Root cause: _isLoading was set to true at the start of
+//   _handleLogin(), and only reset to false inside the catch
+//   blocks. On SUCCESSFUL login, the code navigated away without
+//   ever resetting _isLoading = false.
+//   When the user pressed Back and returned to Login, the button
+//   was still in loading state (showing a spinner, not the text).
+//
+//   Fix: use a try/catch/FINALLY block. The finally block runs
+//   whether the login succeeded OR failed, so _isLoading always
+//   gets reset. This is the correct pattern for any async button.
+// ============================================================
+
 class Login extends StatefulWidget {
   const Login({super.key});
   @override
@@ -14,12 +33,83 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  // NEW: Loading state — shows spinner on button while login processes
+  bool _isLoading = false;
+
+  // NEW: Error message to show under inputs
+  String? _errorMessage;
+
+  // NEW: Extracted login logic into its own method
+  // This keeps the build() method clean
+  Future<void> _handleLogin() async {
+    // Clear any previous error
+    setState(() {
+      _errorMessage = null;
+      _isLoading = true;
+    });
+
+    try {
+      // Call AuthService.login() — this is the abstraction layer.
+      // The screen doesn't know anything about Hive.
+      // It just asks the service: "log this person in".
+      final user = await AuthService.login(
+        emailOrUsername: usernameController.text.trim(),
+        password: passwordController.text,
+      );
+
+      // Navigate based on user role — same logic as before,
+      // but now it uses the real user object from Hive
+      if (!mounted) return;
+
+      if (user.isAdmin) {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                AdminScreen(),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            // NEW: Pass the user to HomeScreen so it can display their name/points
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                HomeScreen(user: user),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      }
+    } on AuthException catch (e) {
+      // AuthException has a user-friendly message we set in AuthService
+      setState(() {
+        _errorMessage = e.message;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Catch-all for unexpected errors
+      setState(() {
+        _errorMessage = 'Something went wrong. Please try again.';
+        _isLoading = false;
+      });
+    } finally {
+      // FIX: finally always runs — success, error, or exception.
+      // This guarantees _isLoading is ALWAYS reset to false,
+      // so the button never gets permanently stuck as a spinner.
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
-        color: AppColors.bg_color,
+        color: AppColors.bgColor,
         padding: EdgeInsets.all(20),
         width: double.infinity,
         child: Column(
@@ -38,7 +128,7 @@ class _LoginState extends State<Login> {
                   child: Text(
                     "EcoScan",
                     style: TextStyle(
-                      color: AppColors.font_color,
+                      color: AppColors.fontColor,
                       fontSize: 70,
                       fontFamily: "Economica",
                       fontWeight: FontWeight.w900,
@@ -59,7 +149,7 @@ class _LoginState extends State<Login> {
                   TextField(
                     controller: usernameController,
                     style: TextStyle(
-                      color: AppColors.font_color2,
+                      color: AppColors.fontColor2,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -86,7 +176,7 @@ class _LoginState extends State<Login> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide(
-                          color: AppColors.font_color2,
+                          color: AppColors.fontColor2,
                           width: 1.5,
                         ),
                       ),
@@ -95,8 +185,9 @@ class _LoginState extends State<Login> {
                   SizedBox(height: 15),
                   TextField(
                     controller: passwordController,
+                    obscureText: true, // NEW: added obscureText for security
                     style: TextStyle(
-                      color: AppColors.font_color2,
+                      color: AppColors.fontColor2,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -123,7 +214,7 @@ class _LoginState extends State<Login> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide(
-                          color: AppColors.font_color2,
+                          color: AppColors.fontColor2,
                           width: 1.5,
                         ),
                       ),
@@ -132,6 +223,17 @@ class _LoginState extends State<Login> {
                 ],
               ),
             ),
+
+            // NEW: Error message display
+            // Only visible when _errorMessage is not null
+            if (_errorMessage != null)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 35),
+                child: Text(
+                  _errorMessage!,
+                  style: TextStyle(color: Colors.redAccent, fontSize: 16),
+                ),
+              ),
 
             // Forget Password
             Container(
@@ -154,7 +256,7 @@ class _LoginState extends State<Login> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.font_color,
+                    color: AppColors.fontColor,
                   ),
                 ),
               ),
@@ -162,47 +264,25 @@ class _LoginState extends State<Login> {
 
             // Login Button
             MaterialButton(
-              onPressed: () {
-                String username = usernameController.text;
-                String password = passwordController.text;
-
-                if (username == "admin" && password == "sambosa") {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          AdminScreen(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          HomeScreen(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                    ),
-                  );
-                }
-              },
+              // NEW: Disable button while loading
+              onPressed: _isLoading ? null : _handleLogin,
               minWidth: 300,
               height: 70,
               splashColor: Colors.lightGreenAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              color: AppColors.font_color,
-              child: Text(
-                "Log In",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.bg_color,
-                ),
-              ),
+              color: AppColors.fontColor,
+              child: _isLoading
+                  ? CircularProgressIndicator(color: AppColors.bgColor)
+                  : Text(
+                      "Log In",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.bgColor,
+                      ),
+                    ),
             ),
 
             SizedBox(height: 30),
@@ -213,8 +293,6 @@ class _LoginState extends State<Login> {
               child: Column(
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
                         child: Divider(
@@ -228,7 +306,7 @@ class _LoginState extends State<Login> {
                         child: Text(
                           "or",
                           style: TextStyle(
-                            color: AppColors.font_color2,
+                            color: AppColors.fontColor2,
                             fontSize: 25,
                           ),
                         ),
@@ -249,7 +327,7 @@ class _LoginState extends State<Login> {
                       style: TextStyle(
                         fontSize: 25,
                         fontStyle: FontStyle.italic,
-                        color: AppColors.font_color,
+                        color: AppColors.fontColor,
                       ),
                     ),
                   ),
@@ -309,10 +387,7 @@ class _LoginState extends State<Login> {
                 children: [
                   Text(
                     "Don't have an account?",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: AppColors.font_color2,
-                    ),
+                    style: TextStyle(fontSize: 20, color: AppColors.fontColor2),
                   ),
                   SizedBox(width: 10),
                   InkWell(
@@ -327,7 +402,7 @@ class _LoginState extends State<Login> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.font_color,
+                        color: AppColors.fontColor,
                       ),
                     ),
                   ),

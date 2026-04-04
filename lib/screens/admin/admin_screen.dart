@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:eco_scan/screens/admin/manage_bins_screen.dart';
 
+// ============================================================
+// ADMINSCREEN.DART — Updated
+// ============================================================
+// Change: Added "Hive Inspector" button alongside existing ones.
+// The inspector opens HiveInspectorScreen which lets the admin
+// browse all stored data across every Hive box.
+// ============================================================
+
+import 'package:eco_scan/screens/admin/hive_inspector_screen.dart'; // NEW
+
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
 
@@ -31,12 +41,23 @@ class AdminScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Welcome Back, Admin",
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
+                    // Example: Long press on "Welcome Back, Admin"
+                    GestureDetector(
+                      onLongPress: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HiveInspectorScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Welcome Back, Admin",
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                     CircleAvatar(
@@ -140,32 +161,68 @@ class AdminScreen extends StatelessWidget {
   }
 
   /// Admin Button
+  // Updated adminButton with optional subtitle, fullWidth, and color params
   Widget adminButton({
     required BuildContext context,
     required IconData icon,
     required String title,
     required Widget page,
+    String? subtitle,
+    bool fullWidth = false,
+    Color color = const Color(0xFF0B6A52),
+    Color accentColor = Colors.greenAccent,
   }) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-      },
+    final content = GestureDetector(
+      onTap: () =>
+          Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
       child: Container(
-        height: 120,
+        height: subtitle != null ? 80 : 120,
+        width: fullWidth ? double.infinity : null,
         decoration: BoxDecoration(
-          color: const Color(0xFF0B6A52),
+          color: color,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: subtitle != null
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 35, color: Colors.greenAccent),
-            const SizedBox(height: 10),
-            Text(title, style: const TextStyle(color: Colors.white)),
+            if (subtitle != null) const SizedBox(width: 20),
+            Icon(icon, size: 30, color: accentColor),
+            if (subtitle != null) ...[
+              const SizedBox(width: 16),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(color: Colors.white, fontSize: 17),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: accentColor.withOpacity(0.7),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              const SizedBox(width: 0),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 8),
+                  Text(title, style: const TextStyle(color: Colors.white)),
+                ],
+              ),
+            ],
           ],
         ),
       ),
     );
+    return content;
   }
 
   /// Statistics Card
