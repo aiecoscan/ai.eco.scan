@@ -32,6 +32,7 @@
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:eco_scan/models/hive_init.dart';
 import 'package:eco_scan/models/user_model.dart';
@@ -122,7 +123,9 @@ class _HiveInspectorScreenState extends State<HiveInspectorScreen>
             // Get entry count for badge
             int count = 0;
             try {
-              count = Hive.box(_boxNames[i]).length;
+              if (Hive.isBoxOpen(_boxNames[i])) {
+                count = Hive.box(_boxNames[i]).length;
+              }
             } catch (_) {}
 
             return Tab(
@@ -614,6 +617,27 @@ class _InspectorCardState extends State<_InspectorCard> {
                   ),
                   const SizedBox(height: 12),
                   _FieldCard(fields: widget.fields),
+
+                  // ==========================================
+                  // NEW: IMAGE RENDERER LOGIC
+                  // ==========================================
+                  if (widget.fields.containsKey('Image Path') &&
+                      widget.fields['Image Path'] != '(no path)')
+                    Container(
+                      margin: const EdgeInsets.only(top: 12),
+                      height: 250, // Height of the image preview
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white24),
+                        image: DecorationImage(
+                          // FileImage reads directly from local device storage
+                          image: FileImage(File(widget.fields['Image Path']!)),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  // ==========================================
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,

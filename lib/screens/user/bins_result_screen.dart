@@ -1,253 +1,153 @@
+import 'package:eco_scan/screens/user/bin_detail_screen.dart';
 import 'package:flutter/material.dart';
+import '/services/bin_service.dart';
+import '/models/bin_model.dart';
 
-// ===============================
-// استيراد شاشات التفاصيل
-// ===============================
+class BinsResultScreen extends StatefulWidget {
+  final TextEditingController city;
+  final TextEditingController district;
 
-// شاشة Future City LRT
-import 'bin_details/elshrok_screen.dart';
-
-// شاشة Golf City Mall
-import 'bin_details/golf_city_screen.dart';
-
-// شاشة El-Salam Bus Stop
-import 'bin_details/elsalam_screen.dart';
-
-// شاشة Sun City Mall
-import 'bin_details/sun_city_screen.dart';
-
-class BinsResultScreen extends StatelessWidget {
   const BinsResultScreen({
     super.key,
     required this.city,
     required this.district,
   });
-  final TextEditingController city;
-  final TextEditingController district;
-  // ===============================
-  // قائمة بيانات الصناديق
-  // عدلت النوع ليكون واضح ومنظم
-  // Map<String,dynamic> يعني البيانات عبارة عن
-  // نصوص + قيم true/false
-  // ===============================
 
-  final List<Map<String, dynamic>> bins = const [
-    {
-      "name": "Future City LRT",
-      "place": "El Shorouk",
-      "distance": "0.8 km away",
-      "active": true,
-    },
-    {
-      "name": "Golf City Mall",
-      "place": "Entrance to Obour City",
-      "distance": "1.2 km away",
-      "active": true,
-    },
-    {
-      "name": "El-Salam Bus Stop",
-      "place": "Masaken Al Amireyah",
-      "distance": "1.8 km away",
-      "active": false,
-    },
-    {
-      "name": "Sun City Mall",
-      "place": "El-Nasr Rd",
-      "distance": "2.5 km away",
-      "active": true,
-    },
-  ];
+  @override
+  State<BinsResultScreen> createState() => _BinsResultScreenState();
+}
+
+class _BinsResultScreenState extends State<BinsResultScreen> {
+  List<BinModel> foundBins = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBins();
+  }
+
+  void _loadBins() {
+    // This calls your BinService and filters by the controllers passed
+    setState(() {
+      foundBins = BinService.getBinsByLocation(
+        widget.city.text,
+        widget.district.text,
+      );
+    });
+  }
+
+  void _handleReport(String id) async {
+    await BinService.reportBin(id);
+    _loadBins(); // Refresh list to show if bin became inactive
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Problem Reported!")));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF002C20),
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===============================
-              // زر الرجوع
-              // ===============================
               IconButton(
                 icon: const Icon(Icons.arrow_back, color: Color(0xFF9AE600)),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
               ),
-
               const SizedBox(height: 10),
-
-              // ===============================
-              // عنوان الصفحة
-              // ===============================
               Text(
-                "${city.text}, ${district.text} - Bins",
-                style: const TextStyle(color: Colors.white, fontSize: 28),
+                "${widget.city.text}, ${widget.district.text}",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-
-              const SizedBox(height: 5),
-
-              const Text(
-                "Found 4 Recycling Bins",
-                style: TextStyle(color: Color(0xFF00D492)),
+              Text(
+                "Found ${foundBins.length} Bins",
+                style: const TextStyle(color: Color(0xFF00D492), fontSize: 16),
               ),
-
               const SizedBox(height: 20),
-
-              // ===============================
-              // قائمة الصناديق
-              // ListView.builder ينشئ الكروت
-              // تلقائياً حسب عدد العناصر
-              // ===============================
               Expanded(
-                child: ListView.builder(
-                  itemCount: bins.length,
-
-                  itemBuilder: (context, index) {
-                    // الحصول على بيانات الصندوق الحالي
-                    final bin = bins[index];
-
-                    return GestureDetector(
-                      // ===============================
-                      // عند الضغط على الكارت
-                      // يتم فتح شاشة التفاصيل
-                      // ===============================
-                      onTap: () {
-                        // Future City
-                        if (bin["name"] == "Future City LRT") {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ElshrokScreen(),
-                            ),
-                          );
-                        }
-                        // Golf City
-                        else if (bin["name"] == "Golf City Mall") {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const GolfCityScreen(),
-                            ),
-                          );
-                        }
-                        // El-Salam Bus Stop
-                        else if (bin["name"] == "El-Salam Bus Stop") {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const ElSalamBusStopScreen(),
-                            ),
-                          );
-                        }
-                        // Sun City
-                        else if (bin["name"] == "Sun City Mall") {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SunCityScreen(),
-                            ),
-                          );
-                        }
-                      },
-
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 15),
-                        padding: const EdgeInsets.all(16),
-
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF005A45),
-                          borderRadius: BorderRadius.circular(20),
+                child: foundBins.isEmpty
+                    ? const Center(
+                        child: Text(
+                          "No Bins found in this area",
+                          style: TextStyle(color: Colors.white),
                         ),
-
-                        child: Row(
-                          children: [
-                            // ===============================
-                            // أيقونة الموقع
-                            // ===============================
-                            const Icon(
-                              Icons.location_on,
-                              color: Color(0xFF9AE600),
-                            ),
-
-                            const SizedBox(width: 10),
-
-                            // ===============================
-                            // بيانات الصندوق
-                            // ===============================
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      )
+                    : ListView.builder(
+                        itemCount: foundBins.length,
+                        itemBuilder: (context, index) {
+                          final bin = foundBins[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BinDetailScreen(
+                                    bin: bin,
+                                  ), // Pass the bin object here
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 15),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF005A45),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
                                 children: [
-                                  // اسم المكان
-                                  Text(
-                                    bin["name"],
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
+                                  const Icon(
+                                    Icons.location_on,
+                                    color: Color(0xFF9AE600),
+                                    size: 30,
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          bin.name,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        Text(
+                                          bin.isActive
+                                              ? "Status: Active"
+                                              : "Status: Out of Service",
+                                          style: TextStyle(
+                                            color: bin.isActive
+                                                ? Colors.greenAccent
+                                                : Colors.redAccent,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-
-                                  // العنوان
-                                  Text(
-                                    bin["place"],
-                                    style: const TextStyle(
-                                      color: Color(0xFF00D492),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.report_problem,
+                                      color: Colors.orange,
                                     ),
-                                  ),
-
-                                  // المسافة
-                                  Text(
-                                    bin["distance"],
-                                    style: const TextStyle(
-                                      color: Color(0xFF00D492),
-                                    ),
+                                    onPressed: () => _handleReport(bin.id),
                                   ),
                                 ],
                               ),
                             ),
-
-                            // ===============================
-                            // حالة الصندوق
-                            // Active أو Inactive
-                            // ===============================
-                            Row(
-                              children: [
-                                Icon(
-                                  bin["active"]
-                                      ? Icons.check_circle
-                                      : Icons.cancel,
-
-                                  color: bin["active"]
-                                      ? Colors.green
-                                      : Colors.red,
-                                ),
-
-                                const SizedBox(width: 5),
-
-                                Text(
-                                  bin["active"] ? "Active" : "Inactive",
-
-                                  style: TextStyle(
-                                    color: bin["active"]
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),

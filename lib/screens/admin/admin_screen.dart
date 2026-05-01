@@ -1,3 +1,4 @@
+import 'package:eco_scan/screens/admin/bin_reports_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:eco_scan/screens/admin/manage_bins_screen.dart';
 import 'package:eco_scan/screens/admin/hive_inspector_screen.dart'; // NEW
@@ -28,9 +29,11 @@ import 'package:eco_scan/models/hive_init.dart';
 import 'package:eco_scan/models/user_model.dart';
 import 'package:eco_scan/services/points_service.dart';
 import 'package:eco_scan/services/scan_service.dart';
+import 'package:eco_scan/screens/user/profile_screen.dart';
 
 class AdminScreen extends StatefulWidget {
-  const AdminScreen({super.key});
+  final UserModel user; // Add this line
+  const AdminScreen({super.key, required this.user}); // Update constructor
 
   @override
   State<AdminScreen> createState() => _AdminScreenState();
@@ -116,10 +119,22 @@ class _AdminScreenState extends State<AdminScreen> {
                         ),
                       ),
                     ),
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.greenAccent.shade400,
-                      child: const Icon(Icons.person, color: Colors.white),
+                    // Locate the header row where the CircleAvatar is
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProfileScreen(user: widget.user),
+                          ),
+                        );
+                      },
+                      child: const CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Color(0xFF0B6A52),
+                        child: Icon(Icons.person, color: Colors.greenAccent),
+                      ),
                     ),
                   ],
                 ),
@@ -141,8 +156,8 @@ class _AdminScreenState extends State<AdminScreen> {
                   Expanded(
                     child: _adminButton(
                       icon: Icons.map,
-                      title: "Geo Map",
-                      onTap: () => _navAndRefresh(const ManageBinsScreen()),
+                      title: "Bin Reports",
+                      onTap: () => _navAndRefresh(const BinReportsScreen()),
                     ),
                   ),
                 ],

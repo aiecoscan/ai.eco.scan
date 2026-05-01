@@ -1,90 +1,79 @@
-// استيراد مكتبة Flutter لبناء الواجهة
 import 'package:flutter/material.dart';
-
-// مكتبة تحديد الموقع
-import 'package:geolocator/geolocator.dart';
-
-// مكتبة فتح التطبيقات الخارجية مثل Google Maps
-import 'package:url_launcher/url_launcher.dart';
-
-// استرداد صفحة bins_result
 import 'bins_result_screen.dart';
 
-late final TextEditingController city;
-late final TextEditingController district;
+// We removed the global TextEditingControllers and geolocator/url_launcher imports.
 
-class LocateBinScreen extends StatelessWidget {
+class LocateBinScreen extends StatefulWidget {
   const LocateBinScreen({super.key});
 
-  // دالة الحصول على الموقع وفتح Google Maps
-  Future<void> openGPS() async {
-    // التأكد أن خدمة الموقع تعمل
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  @override
+  State<LocateBinScreen> createState() => _LocateBinScreenState();
+}
 
-    if (!serviceEnabled) {
-      return;
-    }
+class _LocateBinScreenState extends State<LocateBinScreen> {
+  // 1. State variables to hold the user's current selection
+  String? selectedCity;
+  String? selectedDistrict;
 
-    // طلب إذن الموقع
-    LocationPermission permission = await Geolocator.checkPermission();
+  // 2. The mock data mapping cities to their available districts
+  final Map<String, List<String>> locations = {
+    'Cairo': [
+      'El Shorouk',
+      'Obour',
+      'Masaken',
+      'Heliopolis',
+      'Maadi',
+      'Zamalek',
+    ],
+    'Giza': ['Dokki', 'Mohandiseen'],
+    'Alexandria': ['Shatby', 'San Stefano', 'Sporting'],
+    'New Cairo': ['Al Rehab', '5th Settlement', 'Madinaty'],
+  };
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    // الحصول على الموقع الحالي
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+  // 3. Simulated GPS Function
+  void openGPS() {
+    // Shows a message to the user
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("GPS Located you in New Cairo, 5th Settlement"),
+        backgroundColor: Color(0xFF00B97B),
+      ),
     );
-
-    // إنشاء رابط Google Maps بالموقع الحالي
-    final Uri googleUrl = Uri.parse(
-      "https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}",
-    );
-
-    // فتح Google Maps
-    await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+    // Updates the dropdowns automatically
+    setState(() {
+      selectedCity = 'New Cairo';
+      selectedDistrict = '5th Settlement';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF002C20),
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // زر الرجوع
               IconButton(
                 icon: const Icon(Icons.arrow_back, color: Color(0xFF9AE600)),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
               ),
-
               const SizedBox(height: 10),
-
-              // عنوان الصفحة
               const Text(
                 "Locate Recycling Bin",
                 style: TextStyle(color: Colors.white, fontSize: 28),
               ),
-
               const SizedBox(height: 30),
 
-              // الصندوق الرئيسي
+              // Main Box
               Container(
                 padding: const EdgeInsets.all(20),
-
                 decoration: BoxDecoration(
                   color: const Color(0xFF004D38),
                   borderRadius: BorderRadius.circular(20),
                 ),
-
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -92,31 +81,48 @@ class LocateBinScreen extends StatelessWidget {
                       "Where are you?",
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-
                     const SizedBox(height: 15),
 
-                    // إدخال المدينة
-                    TextField(
-                      controller: city = TextEditingController(),
-                      cursorColor: const Color(0xFF9AE600),
-                      style: const TextStyle(color: Colors.white),
-
+                    // =========================
+                    // CITY DROPDOWN
+                    // =========================
+                    DropdownButtonFormField<String>(
+                      dropdownColor: const Color(0xFF004D38),
+                      value: selectedCity,
+                      hint: const Text(
+                        "Select City",
+                        style: TextStyle(color: Color(0xFF00D492)),
+                      ),
+                      // Generate items from the keys of our map
+                      items: locations.keys.map((city) {
+                        return DropdownMenuItem(
+                          value: city,
+                          child: Text(
+                            city,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          selectedCity = val;
+                          // CRITICAL: Reset district when city changes so we don't have a mismatch
+                          selectedDistrict = null;
+                        });
+                      },
                       decoration: InputDecoration(
-                        hintText: "Enter City",
-                        hintStyle: const TextStyle(color: Color(0xFF00D492)),
-
+                        filled: true,
+                        fillColor: const Color(0xFF002C20),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 18,
                           vertical: 16,
                         ),
-
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: const BorderSide(
                             color: Color(0xFF00B97B),
                           ),
                         ),
-
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: const BorderSide(
@@ -129,28 +135,46 @@ class LocateBinScreen extends StatelessWidget {
 
                     const SizedBox(height: 15),
 
-                    // إدخال المنطقة
-                    TextField(
-                      controller: district = TextEditingController(),
-                      cursorColor: const Color(0xFF9AE600),
-                      style: const TextStyle(color: Colors.white),
-
+                    // =========================
+                    // DISTRICT DROPDOWN
+                    // =========================
+                    DropdownButtonFormField<String>(
+                      dropdownColor: const Color(0xFF004D38),
+                      value: selectedDistrict,
+                      hint: const Text(
+                        "Select District",
+                        style: TextStyle(color: Color(0xFF00D492)),
+                      ),
+                      // Generate items based on the selected city. If no city is selected, show empty list.
+                      items: selectedCity == null
+                          ? []
+                          : locations[selectedCity]!.map((dist) {
+                              return DropdownMenuItem(
+                                value: dist,
+                                child: Text(
+                                  dist,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              );
+                            }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          selectedDistrict = val;
+                        });
+                      },
                       decoration: InputDecoration(
-                        hintText: "Enter District",
-                        hintStyle: const TextStyle(color: Color(0xFF00D492)),
-
+                        filled: true,
+                        fillColor: const Color(0xFF002C20),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 18,
                           vertical: 16,
                         ),
-
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: const BorderSide(
                             color: Color(0xFF00B97B),
                           ),
                         ),
-
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: const BorderSide(
@@ -163,11 +187,9 @@ class LocateBinScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // خط OR
                     Row(
                       children: const [
                         Expanded(child: Divider(color: Colors.white24)),
-
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
@@ -175,14 +197,15 @@ class LocateBinScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
-
                         Expanded(child: Divider(color: Colors.white24)),
                       ],
                     ),
 
                     const SizedBox(height: 20),
 
-                    // زر GPS
+                    // =========================
+                    // GPS BUTTON
+                    // =========================
                     Center(
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
@@ -195,17 +218,13 @@ class LocateBinScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-
-                        // تشغيل GPS
                         onPressed: openGPS,
-
                         icon: const Icon(
                           Icons.location_on,
                           color: Colors.black,
                         ),
-
                         label: const Text(
-                          "Use Gps",
+                          "Use GPS (Mock)",
                           style: TextStyle(color: Colors.black),
                         ),
                       ),
@@ -216,26 +235,43 @@ class LocateBinScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // زر البحث
+              // =========================
+              // FIND BINS BUTTON
+              // =========================
               SizedBox(
                 width: double.infinity,
                 height: 55,
-
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF9AE600),
                   ),
-
                   onPressed: () {
+                    // Prevent navigation if dropdowns are empty
+                    if (selectedCity == null || selectedDistrict == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Please select a City and District first",
+                          ),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
+                    }
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            BinsResultScreen(city: city, district: district),
+                        builder: (context) => BinsResultScreen(
+                          // Wrapping strings in TextEditingController to keep compatibility with BinsResultScreen
+                          city: TextEditingController(text: selectedCity),
+                          district: TextEditingController(
+                            text: selectedDistrict,
+                          ),
+                        ),
                       ),
                     );
                   },
-
                   child: const Text(
                     "Find Bins",
                     style: TextStyle(color: Colors.black, fontSize: 18),

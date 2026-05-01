@@ -1,4 +1,5 @@
 import 'package:eco_scan/screens/user/locate_bin_screen.dart'; // استيراد مكتبة Flutter الأساسية لبناء الواجهة
+import 'package:eco_scan/screens/user/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'scan_waste_screen.dart'; // استيراد شاشة المسح حتى نتمكن من الانتقال إليها
 import 'learn_recycle_screen.dart'; // استيراد شاشة Learn About Recycle حتى نتمكن من الانتقال إليها
@@ -76,9 +77,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   // صورة المستخدم
-                  const CircleAvatar(
-                    backgroundColor: Color(0xFF005A45),
-                    child: Icon(Icons.person, color: Color(0xFF9AE600)),
+                  // In the top Row of your HomeScreen build method:
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ProfileScreen(user: widget.user),
+                        ),
+                      );
+                    },
+                    child: const CircleAvatar(
+                      radius: 25,
+                      backgroundColor: Color(0xFF005A45),
+                      child: Icon(Icons.person, color: Color(0xFF9AE600)),
+                    ),
                   ),
                 ],
               ),

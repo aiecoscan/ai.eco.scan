@@ -22,10 +22,12 @@
 //   The fix is a second, separate untyped box just for session data.
 // ============================================================
 
+import 'package:eco_scan/services/bin_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'user_model.dart';
 import 'scan_log_model.dart';
 import 'points_data_model.dart';
+import 'package:eco_scan/models/bin_model.dart';
 
 // ── Generated adapters (from build_runner) ──────────────────
 // After you run: flutter pub run build_runner build
@@ -43,6 +45,7 @@ class HiveInit {
   static const String scanBox = 'scanBox';
   static const String pointsBox = 'pointsBox';
   static const String sessionBox = 'sessionBox'; // NEW: separate session box
+  static const String binBox = 'binBox';
 
   // ── Session Key ─────────────────────────────────────────
   // We store the currently logged-in user's ID under this key
@@ -62,6 +65,7 @@ class HiveInit {
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(ScanLogModelAdapter());
     Hive.registerAdapter(PointsDataModelAdapter());
+    Hive.registerAdapter(BinModelAdapter());
 
     // 3. Open all boxes upfront
     //    Think of opening a box like connecting to a DB table.
@@ -69,6 +73,8 @@ class HiveInit {
     await Hive.openBox<UserModel>(userBox);
     await Hive.openBox<ScanLogModel>(scanBox);
     await Hive.openBox<PointsDataModel>(pointsBox);
+    await Hive.openBox<BinModel>(binBox);
+    await BinService.initDummyData(); // THIS IS THE IMPORTANT LINE
 
     // NEW: Open untyped box for session string only
     // No type parameter — this box holds plain String values

@@ -62,14 +62,12 @@ class _LoginState extends State<Login> {
       // but now it uses the real user object from Hive
       if (!mounted) return;
 
+      // Look for the part where it checks if the user is an admin
       if (user.isAdmin) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                AdminScreen(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
+          MaterialPageRoute(
+            builder: (context) => AdminScreen(user: user), // Pass 'user' here
           ),
         );
       } else {
